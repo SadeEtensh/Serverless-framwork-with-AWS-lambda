@@ -11,7 +11,29 @@ export const handler = middy(
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
     // TODO: Implement creating a new TODO item
 
-    return undefined
+    const jwtString = getUserId(event);
+    const newItem = await createTodo(newTodo,jwtString);
+
+    if(newTodo.name.trim().length < 1) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Bad Request. The todo name cannot be empty'
+        })
+      }
+    }
+
+    return {
+      statusCode: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: JSON.stringify({
+       item : newItem
+      })
+    }
+  }
 )
 
 handler.use(
